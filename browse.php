@@ -64,11 +64,19 @@ if ($action === 'confirm' && $confirmed && !empty($code_ec) && !empty($periode))
         print_error('Plugin enrol_wsscol not found.');
     }
 
-    // $scolarapp_id = get_config('block_pegase', 'wsscol_scolarapp_id');
-    // if (empty($scolarapp_id)) {
-    //     print_error('PEGASE scolarapp ID not configured in block settings.');
-    // }
+    $scolarapp = $DB->get_record_select(
+        'enrol_wsscol_scolapps',
+        "type = 'pegase' AND getstudents_periode = :periode AND status = 1",
+        ['periode' => $periode]
+    );
 
+    if (!$scolarapp) {
+        throw new \moodle_exception('generalexceptionmessage', 'error', '',
+            'Aucune scolarapp PEGASE trouvée pour la période : ' . $periode
+        );
+    }
+
+    $scolarapp_id = $scolarapp->id;
     // Check if already enrolled
     $existing = $DB->get_record('enrol', [
         'enrol'       => 'wsscol',
