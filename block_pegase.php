@@ -129,7 +129,7 @@ class block_pegase extends block_base {
                        . 'onclick="return confirm(\'' . get_string('deleteconfirm', 'block_pegase') . '\')" '
                        . 'class="btn btn-sm btn-outline-danger" '
                        . 'title="' . get_string('deletemethod', 'block_pegase') . '">'
-                       . '🗑'
+                       . '<i class="fa fa-trash"></i>'
                        . '</a>';
                 $html .= '</div>';
                 $html .= '</li>';
@@ -143,10 +143,10 @@ class block_pegase extends block_base {
 
         $html .= '<div class="d-grid gap-2 mt-2">';
         $html .= '<a href="' . $browse_url . '" class="btn btn-primary btn-sm">'
-               . '🔍 ' . get_string('browsetree', 'block_pegase')
+               . '<i class="fa fa-sitemap"></i> ' . get_string('browsetree', 'block_pegase')
                . '</a>';
         $html .= '<a href="' . $edit_url . '" class="btn btn-outline-primary btn-sm">'
-               . '✏️ ' . get_string('searchbycode', 'block_pegase')
+               . '<i class="fa fa-pencil"></i> ' . get_string('searchbycode', 'block_pegase')
                . '</a>';
         $html .= '</div>';
 
