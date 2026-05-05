@@ -64,10 +64,10 @@ if ($action === 'confirm' && $confirmed && !empty($code_ec) && !empty($periode))
         print_error('Plugin enrol_wsscol not found.');
     }
 
-    $scolarapp_id = get_config('block_pegase', 'wsscol_scolarapp_id');
-    if (empty($scolarapp_id)) {
-        print_error('PEGASE scolarapp ID not configured in block settings.');
-    }
+    // $scolarapp_id = get_config('block_pegase', 'wsscol_scolarapp_id');
+    // if (empty($scolarapp_id)) {
+    //     print_error('PEGASE scolarapp ID not configured in block settings.');
+    // }
 
     // Check if already enrolled
     $existing = $DB->get_record('enrol', [
@@ -435,7 +435,7 @@ function toggleNode(nodeId, btn) {
 async function loadStudents(code_ec, label) {
     const select      = document.getElementById('periode-select');
     const selected    = select.options[select.selectedIndex];
-    const code_periode = selected ? selected.dataset.code : ''; // PERIODE-25-26
+    const code_periode = selected ? selected.dataset.code : '';
 
     document.getElementById('students-card').classList.remove('d-none');
     document.getElementById('students-ec-name').textContent = code_ec + ' — ' + label;
@@ -445,13 +445,13 @@ async function loadStudents(code_ec, label) {
 
     try {
         const result = await ajaxCall('students', { code_ec, code_periode });
-        renderStudents(result, code_ec, periode);
+        renderStudents(result, code_ec, code_periode);
     } catch (e) {
         showError('students-list', e.message);
     }
 }
 
-function renderStudents(result, code_ec, periode) {
+function renderStudents(result, code_ec, code_periode) {
     const students  = result.students || [];
     const container = document.getElementById('students-list');
 

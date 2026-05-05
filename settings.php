@@ -66,12 +66,4 @@ if ($hassiteconfig) {
         '',
         ''
     ));
-
-    // ID of the PEGASE scolarapp in enrol_wsscol
-    $settings->add(new admin_setting_configtext(
-        'block_pegase/wsscol_scolarapp_id',
-        get_string('wsscol_scolarapp_id', 'block_pegase'),
-        get_string('wsscol_scolarapp_id_desc', 'block_pegase'),
-        ''
-    ));
 }
