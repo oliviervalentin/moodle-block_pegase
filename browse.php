@@ -141,11 +141,14 @@ echo html_writer::tag('p',
                     <?php echo get_string('selectperiod', 'block_pegase'); ?>
                 </label>
                 <select id="periode-select" class="form-select w-auto">
-                    <option value="">-- Chargement des périodes... --</option>
-                </select>
-                <div id="periode-loading" class="text-muted small mt-1">
-                    <i class="fa fa-spinner fa-spin me-1"></i>Chargement...
-                </div>
+    <?php foreach ($periods as $period): ?>
+        <option value="<?php echo $period['id']; ?>"
+                data-code="<?php echo $period['code']; ?>"
+            <?php echo ($periode === $period['code']) ? 'selected' : ''; ?>>
+            <?php echo $period['libelle']; ?>
+        </option>
+    <?php endforeach; ?>
+</select>
             </div>
             <div class="input-group w-50">
                 <input type="text"
@@ -251,7 +254,7 @@ function escapeHtml(str) {
 // LOAD PERIODS ON PAGE LOAD
 // =========================================================================
 
-async function loadPeriods() {
+/* async function loadPeriods() {
     try {
         const periods = await ajaxCall('espaces', {});
         const select  = document.getElementById('periode-select');
@@ -277,6 +280,7 @@ async function loadPeriods() {
 
 // Load periods when page is ready
 loadPeriods();
+*/
 
 // =========================================================================
 // STEP 1 : SEARCH FORMATIONS — now uses espace UUID
@@ -448,7 +452,7 @@ async function loadStudents(code_ec, label) {
     document.getElementById('students-card').classList.remove('d-none');
     document.getElementById('students-ec-name').textContent = code_ec + ' — ' + label;
     document.getElementById('confirm-form').classList.add('d-none');
-    showSpinner('students-list');
+    //('students-list');
     document.getElementById('students-card').scrollIntoView({ behavior: 'smooth' });
 
     try {

@@ -30,22 +30,74 @@ defined('MOODLE_INTERNAL') || die();
  *
  * @return array ['PERIODE-25-26' => 'PEGASE 2025-2026 (PERIODE-25-26)', ...]
  */
+// function block_pegase_get_periods(): array {
+//     global $DB;
+
+//     $periods    = [];
+//     $scolarapps = $DB->get_records_select(
+//         'enrol_wsscol_scolapps',
+//         "type = 'pegase' AND status = 1",
+//         [], 'id ASC'
+//     );
+
+//     foreach ($scolarapps as $scolarapp) {
+//         if (!empty($scolarapp->getstudents_periode)) {
+//             $periods[$scolarapp->getstudents_periode] = $scolarapp->name
+//                 . ' (' . $scolarapp->id . ')';
+//         }
+//     }
+
+//     return $periods;
+// }
+
 function block_pegase_get_periods(): array {
     global $DB;
 
-    $periods    = [];
+    // Get configured PEGASE scolarapps periods
     $scolarapps = $DB->get_records_select(
         'enrol_wsscol_scolapps',
         "type = 'pegase' AND status = 1",
         [], 'id ASC'
     );
 
+    $configured_codes = [];
     foreach ($scolarapps as $scolarapp) {
         if (!empty($scolarapp->getstudents_periode)) {
-            $periods[$scolarapp->getstudents_periode] = $scolarapp->name
-                . ' (' . $scolarapp->id . ')';
+            $configured_codes[] = $scolarapp->getstudents_periode;
         }
     }
 
-    return $periods;
+    if (empty($configured_codes)) {
+        return [];
+    }
+
+    // Get espaces from API and filter on configured codes only
+    try {
+        $api     = new \block_pegase\api();
+        $espaces = $api->get_espaces(get_config('block_pegase', 'codestructure'));
+
+        $periods = [];
+        foreach ($espaces as $espace) {
+            if (in_array($espace['code'], $configured_codes)) {
+                $periods[] = [
+                    'id'      => $espace['id'],     // UUID for ODF search
+                    'code'    => $espace['code'],   // PERIODE-25-26 for CHC API
+                    'libelle' => $espace['libelle'],
+                ];
+            }
+        }
+        return $periods;
+
+    } catch (\moodle_exception $e) {
+        // Fallback : return just codes without UUID if API unavailable
+        $periods = [];
+        foreach ($configured_codes as $code) {
+            $periods[] = [
+                'id'      => '',
+                'code'    => $code,
+                'libelle' => $code,
+            ];
+        }
+        return $periods;
+    }
 }

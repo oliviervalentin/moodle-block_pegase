@@ -180,11 +180,10 @@ if (!empty($error)) {
                     <?php echo get_string('selectperiod', 'block_pegase'); ?>
                 </label>
                 <select name="periode" id="periode" class="form-select w-auto">
-                    <?php                   
-                    foreach ($periods as $value => $label): ?>
-                        <option value="<?php echo $value; ?>"
-                            <?php //echo ($periode === $value) ? 'selected' : ''; ?>>
-                            <?php echo $label; ?>
+                    <?php foreach ($periods as $period): ?>
+                        <option value="<?php echo $period['code']; ?>"
+                            <?php echo ($periode === $period['code']) ? 'selected' : ''; ?>>
+                            <?php echo $period['libelle']; ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
