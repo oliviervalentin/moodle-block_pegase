@@ -26,9 +26,9 @@ defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'block_pegase';
 $plugin->version   = 2026043000;
-$plugin->requires  = 2024100700; // Moodle 4.5
+$plugin->requires  = 2024100700;
 $plugin->maturity  = MATURITY_ALPHA;
 $plugin->release   = '0.1.0';
 $plugin->dependencies = [
-    'enrol_wsscol' => 2026043000, // Requires enrol_wsscol
+    'enrol_wsscol' => 2026043000,
 ];

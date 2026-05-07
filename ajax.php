@@ -39,7 +39,7 @@ try {
 
     switch ($action) {
 
-        // Search formations by keyword
+        // Search formations by keyword.
         case 'search':
             $keyword    = required_param('keyword', PARAM_TEXT);
             $espace_id  = optional_param('espace_id', '', PARAM_TEXT);
@@ -47,20 +47,20 @@ try {
             echo json_encode(['success' => true, 'data' => $result]);
             break;
 
-        // Get formation tree by ID
+        // Get formation tree by ID.
         case 'tree':
             $formation_id = required_param('formation_id', PARAM_TEXT);
             $result       = $api->get_formation_tree($codestructure, $formation_id);
             echo json_encode(['success' => true, 'data' => $result]);
             break;
 
-        // Get students for a code
+        // Get students for a code.
         case 'students':
             $code_ec      = required_param('code_ec', PARAM_ALPHANUMEXT);
             $code_periode = required_param('code_periode', PARAM_ALPHANUMEXT);
             $result       = $api->get_apprenants($codestructure, $code_periode, $code_ec);
 
-            // Enrich with Moodle account status
+            // Retrieve user info from Moodle account.
             global $DB;
             foreach ($result['students'] as &$student) {
                 $moodle_user = $DB->get_record(
@@ -74,7 +74,7 @@ try {
             echo json_encode(['success' => true, 'data' => $result]);
             break;
 
-        // Get periods liste
+        // Get periods list.
         case 'espaces':
             $result = $api->get_espaces($codestructure);
             echo json_encode(['success' => true, 'data' => $result]);

@@ -58,9 +58,9 @@ $action    = optional_param('action', '', PARAM_ALPHA);
 $code_ec   = optional_param('code_ec', '', PARAM_ALPHANUMEXT);
 $periode   = optional_param('periode', '', PARAM_ALPHANUMEXT);
 $confirmed = optional_param('confirmed', 0, PARAM_INT);
+$title     = optional_param('title', '', PARAM_TEXT);
 
 $students        = [];
-$title           = '';
 $object_type     = '';
 $object_type_label = '';
 $search_done     = false;
@@ -130,13 +130,13 @@ if ($action === 'confirm' && $confirmed && !empty($code_ec) && !empty($periode))
 
     // Create enrol_wsscol instance.
     $wsscol_plugin->add_instance($course, [
-        'name'        => 'PEGASE - ' . $code_ec . ' (' . $periode . ')',
         'customchar1' => $code_ec,
-        'customchar2' => $periode,
+        'customchar2' => $title,    // titre du cours
+        'customchar3' => $periode,  // période
         'customint2'  => $scolarapp_id,
-        'customint3'  => 1, // INSTANCE_ETAT_AUTO
+        'customint3'  => 1,
         'status'      => ENROL_INSTANCE_ENABLED,
-]);
+    ]);
     redirect(
         new moodle_url('/course/view.php', ['id' => $courseid]),
         get_string('instancecreated', 'block_pegase'),
@@ -171,6 +171,7 @@ if (!empty($error)) {
     <input type="hidden" name="sesskey"  value="<?php echo sesskey(); ?>">
     <input type="hidden" name="courseid" value="<?php echo $courseid; ?>">
     <input type="hidden" name="action"   value="search">
+    <input type="hidden" name="title" value="<?php echo s($title); ?>">
 
     <div class="card mb-4">
         <div class="card-body">
@@ -293,6 +294,7 @@ if ($search_done) {
                 <input type="hidden" name="confirmed" value="1">
                 <input type="hidden" name="code_ec"   value="<?php echo s($code_ec); ?>">
                 <input type="hidden" name="periode"   value="<?php echo s($periode); ?>">
+                <input type="hidden" name="title"     value="<?php echo s($title); ?>">
 
                 <div class="d-flex gap-2 mt-3">
                     <button type="submit" class="btn btn-success">

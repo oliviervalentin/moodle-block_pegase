@@ -122,15 +122,16 @@ class block_pegase extends block_base {
                 $html .= '<div class="d-flex justify-content-between align-items-start">';
                 $html .= '<div>';
                 $html .= '<strong>' . s($instance->customchar1) . '</strong>'; // code EC
-                $html .= '<br><small class="text-muted">' . s($instance->customchar2) . '</small>'; // période
+                $html .= ' — ' . s($instance->customchar2); // titre du cours
+                $html .= '<br><small class="text-muted">' . s($instance->customchar3) . '</small>'; // période
                 $html .= '<br><small>' . $count . ' ' . get_string('students', 'block_pegase') . '</small>';
                 $html .= '</div>';
                 $html .= '<a href="' . $delete_url . '" '
-                       . 'onclick="return confirm(\'' . get_string('deleteconfirm', 'block_pegase') . '\')" '
-                       . 'class="btn btn-sm btn-outline-danger" '
-                       . 'title="' . get_string('deletemethod', 'block_pegase') . '">'
-                       . '<i class="fa fa-trash"></i>'
-                       . '</a>';
+                    . 'onclick="return confirm(\'' . get_string('deleteconfirm', 'block_pegase') . '\')" '
+                    . 'class="btn btn-sm btn-outline-danger" '
+                    . 'title="' . get_string('deletemethod', 'block_pegase') . '">'
+                    . '<i class="fa fa-trash"></i>'
+                    . '</a>';
                 $html .= '</div>';
                 $html .= '</li>';
             }

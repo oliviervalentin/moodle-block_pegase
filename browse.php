@@ -31,6 +31,7 @@ $confirmed = optional_param('confirmed', 0, PARAM_INT);
 $action    = optional_param('action', '', PARAM_ALPHA);
 $code_ec   = optional_param('code_ec', '', PARAM_ALPHANUMEXT);
 $periode   = optional_param('periode', 'PERIODE-25-26', PARAM_ALPHANUMEXT);
+$title     = optional_param('title', '', PARAM_TEXT);
 
 $course  = $DB->get_record('course', ['id' => $courseid], '*', MUST_EXIST);
 $context = context_course::instance($courseid);
@@ -96,13 +97,13 @@ if ($action === 'confirm' && $confirmed && !empty($code_ec) && !empty($periode))
 
     // Create enrol_wsscol instance
     $wsscol_plugin->add_instance($course, [
-        'name'        => 'PEGASE - ' . $code_ec . ' (' . $periode . ')',
         'customchar1' => $code_ec,
-        'customchar2' => $periode,
+        'customchar2' => $title,    // titre du cours
+        'customchar3' => $periode,  // période
         'customint2'  => $scolarapp_id,
+        'customint3'  => 1,
         'status'      => ENROL_INSTANCE_ENABLED,
     ]);
-
     redirect(
         new moodle_url('/course/view.php', ['id' => $courseid]),
         get_string('instancecreated', 'block_pegase'),
@@ -197,6 +198,7 @@ echo html_writer::tag('p',
                 <input type="hidden" name="confirmed" value="1">
                 <input type="hidden" name="code_ec"   id="confirm-code-ec" value="">
                 <input type="hidden" name="periode"   id="confirm-periode"  value="">
+                <input type="hidden" name="title" id="confirm-title" value="">
 
                 <div class="d-flex gap-2">
                     <button type="submit" class="btn btn-success">
@@ -501,8 +503,9 @@ function renderStudents(result, code_ec, code_periode) {
 
     // Show confirmation form
     document.getElementById('confirm-code-ec').value = code_ec;
-    document.getElementById('confirm-periode').value = code_periode; // PERIODE-25-26
+    document.getElementById('confirm-periode').value = code_periode;
     document.getElementById('confirm-form').classList.remove('d-none');
+    document.getElementById('confirm-title').value = result.title || '';
 }
 </script>
 
