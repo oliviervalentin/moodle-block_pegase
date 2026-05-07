@@ -38,18 +38,19 @@ try {
     $api = new \block_pegase\api();
 
     switch ($action) {
+
         // Search formations by keyword.
         case 'search':
             $keyword    = required_param('keyword', PARAM_TEXT);
-            $espaceid  = optional_param('espaceid', '', PARAM_TEXT);
-            $result     = $api->search_formations($codestructure, $keyword, $espaceid);
+            $espace_id  = optional_param('espace_id', '', PARAM_TEXT);
+            $result     = $api->search_formations($codestructure, $keyword, $espace_id);
             echo json_encode(['success' => true, 'data' => $result]);
             break;
 
         // Get formation tree by ID.
         case 'tree':
-            $formationid = required_param('formationid', PARAM_TEXT);
-            $result       = $api->get_formation_tree($codestructure, $formationid);
+            $formation_id = required_param('formation_id', PARAM_TEXT);
+            $result       = $api->get_formation_tree($codestructure, $formation_id);
             echo json_encode(['success' => true, 'data' => $result]);
             break;
 
@@ -62,13 +63,13 @@ try {
             // Retrieve user info from Moodle account.
             global $DB;
             foreach ($result['students'] as &$student) {
-                $moodleuser = $DB->get_record(
+                $moodle_user = $DB->get_record(
                     'user',
                     ['idnumber' => $student['codeApprenant']],
                     'id, firstname, lastname'
                 );
-                $student['moodle_account'] = $moodleuser ? true : false;
-                $student['moodle_name']    = $moodleuser ? fullname($moodleuser) : null;
+                $student['moodle_account'] = $moodle_user ? true : false;
+                $student['moodle_name']    = $moodle_user ? fullname($moodle_user) : null;
             }
             echo json_encode(['success' => true, 'data' => $result]);
             break;
@@ -82,6 +83,7 @@ try {
         default:
             throw new \moodle_exception('invalidaction', 'block_pegase');
     }
+
 } catch (\moodle_exception $e) {
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 } catch (\Exception $e) {

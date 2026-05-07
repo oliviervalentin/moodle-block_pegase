@@ -35,14 +35,14 @@ $context = context_course::instance($courseid);
 require_login($course);
 require_capability('block/pegase:manage', $context);
 
-// Verify instance belongs to this course and is wsscol type.
+// Verify instance belongs to this course and is wsscol type
 $instance = $DB->get_record('enrol', [
     'id'       => $instanceid,
     'courseid' => $courseid,
     'enrol'    => 'wsscol',
 ], '*', MUST_EXIST);
 
-// Delete the enrol instance.
+// Delete the enrol instance
 $plugin = enrol_get_plugin('wsscol');
 $plugin->delete_instance($instance);
 

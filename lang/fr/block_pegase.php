@@ -23,12 +23,12 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$string['pegase:addinstance']   = 'Ajouter le bloc PEGASE';
-$string['pegase:manage']        = 'Gérer les inscriptions PEGASE';
-$string['pegase:myaddinstance'] = 'Ajouter le bloc PEGASE à mon tableau de bord';
 $string['pluginname']           = 'Inscriptions PEGASE';
+$string['pegase:addinstance']   = 'Ajouter le bloc PEGASE';
+$string['pegase:myaddinstance'] = 'Ajouter le bloc PEGASE à mon tableau de bord';
+$string['pegase:manage']        = 'Gérer les inscriptions PEGASE';
 
-// Settings.
+// Settings
 $string['authurl']              = 'URL d\'authentification CAS';
 $string['authurl_desc']         = 'Endpoint CAS de PEGASE pour obtenir un token.';
 $string['apiurl']               = 'URL de base de l\'API CHC';
@@ -42,7 +42,7 @@ $string['password']             = 'Mot de passe API';
 $string['wsscol_scolarapp_id']      = 'ID de la scolarapp PEGASE';
 $string['wsscol_scolarapp_id_desc'] = 'ID de la scolarapp PEGASE dans enrol_wsscol.';
 
-// Block content.
+// Block content
 $string['activemethods']        = 'Matières inscrites dans ce cours';
 $string['nomethods']            = 'Aucune matière PEGASE inscrite dans ce cours.';
 $string['addmethod']            = 'Ajouter une matière PEGASE';
@@ -50,7 +50,7 @@ $string['deletemethod']         = 'Supprimer cette méthode';
 $string['deleteconfirm']        = 'Êtes-vous sûr de vouloir supprimer cette méthode d\'inscription ?';
 $string['students']             = 'étudiant(s)';
 
-// Search.
+// Search
 $string['searchbycode']         = 'Rechercher par code matière';
 $string['browsetree']           = 'Parcourir l\'arborescence';
 $string['selectperiod']         = 'Année universitaire';
