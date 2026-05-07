@@ -44,7 +44,7 @@ $PAGE->set_title(get_string('browsetitle', 'block_pegase'));
 $PAGE->set_heading($course->fullname);
 $PAGE->set_pagelayout('incourse');
 
-// Periods available
+// Periods available.
 $periods = block_pegase_get_periods();
 
 if (empty($periods)) {
@@ -57,9 +57,8 @@ if (empty($periods)) {
     exit;
 }
 
-// Action : confirm and create enrol_wsscol instance
+// Action : confirm and create enrol_wsscol instance.
 if ($action === 'confirm' && $confirmed && !empty($code_ec) && !empty($periode)) {
-
     $wsscol_plugin = enrol_get_plugin('wsscol');
     if (!$wsscol_plugin) {
         print_error('Plugin enrol_wsscol not found.');
@@ -72,7 +71,10 @@ if ($action === 'confirm' && $confirmed && !empty($code_ec) && !empty($periode))
     );
 
     if (!$scolarapp) {
-        throw new \moodle_exception('generalexceptionmessage', 'error', '',
+        throw new \moodle_exception(
+            'generalexceptionmessage',
+            'error',
+            '',
             'Aucune scolarapp PEGASE trouvée pour la période : ' . $periode
         );
     }
@@ -98,8 +100,8 @@ if ($action === 'confirm' && $confirmed && !empty($code_ec) && !empty($periode))
     // Create enrol_wsscol instance
     $wsscol_plugin->add_instance($course, [
         'customchar1' => $code_ec,
-        'customchar2' => $title,    // titre du cours
-        'customchar3' => $periode,  // période
+        'customchar2' => $title,
+        'customchar3' => $periode,
         'customint2'  => $scolarapp_id,
         'customint3'  => 1,
         'status'      => ENROL_INSTANCE_ENABLED,
@@ -118,8 +120,9 @@ $sesskey  = sesskey();
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('browsetitle', 'block_pegase'));
 
-// Back link
-echo html_writer::tag('p',
+// Back link.
+echo html_writer::tag(
+    'p',
     html_writer::link(
         new moodle_url('/course/view.php', ['id' => $courseid]),
         '← ' . get_string('backtocourse', 'block_pegase')
@@ -128,10 +131,7 @@ echo html_writer::tag('p',
 ?>
 
 <div id="pegase-browser">
-
-    <?php /* ================================================================
-     STEP 1 : Search formation
-    ================================================================ */ ?>
+     <!-- STEP 1 : Search formation. -->
     <div class="card mb-4">
         <div class="card-header fw-bold">
             <?php echo get_string('step1search', 'block_pegase'); ?>
@@ -164,9 +164,7 @@ echo html_writer::tag('p',
         </div>
     </div>
 
-    <?php /* ================================================================
-     STEP 2 : Formation tree
-    ================================================================ */ ?>
+    <!-- STEP 2 : tree will be loaded here after searching for formations. -->
     <div class="card mb-4 d-none" id="tree-card">
         <div class="card-header fw-bold">
             <?php echo get_string('step2tree', 'block_pegase'); ?>
@@ -177,9 +175,7 @@ echo html_writer::tag('p',
         </div>
     </div>
 
-    <?php /* ================================================================
-     STEP 3 : Students list + confirmation
-    ================================================================ */ ?>
+    <!-- STEP 3 : Students list + confirmation. -->
     <div class="card mb-4 d-none" id="students-card">
         <div class="card-header fw-bold">
             <?php echo get_string('step3students', 'block_pegase'); ?>
@@ -219,10 +215,9 @@ echo html_writer::tag('p',
 const AJAX_URL = '<?php echo $ajax_url; ?>';
 const SESSKEY  = '<?php echo $sesskey; ?>';
 
-// =========================================================================
-// UTILITY
-// =========================================================================
+// Specific helper functions for this page.
 
+/** Show a loading spinner inside the specified container. */
 function showSpinner(container) {
     document.getElementById(container).innerHTML =
         '<div class="d-flex align-items-center gap-2 text-muted">' +
@@ -230,11 +225,13 @@ function showSpinner(container) {
         '<span>Chargement...</span></div>';
 }
 
+/** Show an error message inside the specified container. */
 function showError(container, message) {
     document.getElementById(container).innerHTML =
         '<div class="alert alert-danger">' + message + '</div>';
 }
 
+/** Make an AJAX call to the server with the given action and parameters. */
 async function ajaxCall(action, params) {
     const body = new URLSearchParams({ action, sesskey: SESSKEY, ...params });
     const response = await fetch(AJAX_URL, { method: 'POST', body });
@@ -243,6 +240,7 @@ async function ajaxCall(action, params) {
     return data.data;
 }
 
+/** Escape HTML special characters to prevent XSS. */
 function escapeHtml(str) {
     if (!str) return '';
     return String(str)
@@ -252,46 +250,11 @@ function escapeHtml(str) {
         .replace(/"/g, '&quot;');
 }
 
-// =========================================================================
-// LOAD PERIODS ON PAGE LOAD
-// =========================================================================
-
-/* async function loadPeriods() {
-    try {
-        const periods = await ajaxCall('espaces', {});
-        const select  = document.getElementById('periode-select');
-        const loading = document.getElementById('periode-loading');
-
-        select.innerHTML = '';
-        periods.forEach(period => {
-            const option = document.createElement('option');
-            option.value           = period.id;    // UUID for ODF search
-            option.dataset.code    = period.code;  // PERIODE-25-26 for CHC API
-            option.textContent     = period.libelle;
-            select.appendChild(option);
-        });
-
-        if (loading) loading.style.display = 'none';
-
-    } catch (e) {
-        console.error('Failed to load periods:', e);
-        document.getElementById('periode-select').innerHTML =
-            '<option value="">Erreur de chargement</option>';
-    }
-}
-
-// Load periods when page is ready
-loadPeriods();
-*/
-
-// =========================================================================
-// STEP 1 : SEARCH FORMATIONS — now uses espace UUID
-// =========================================================================
-
+// STEP 1 : SEARCH FORMATIONS — uses espace UUID.
 document.getElementById('search-btn').addEventListener('click', async () => {
     const keyword    = document.getElementById('search-input').value.trim();
     const select     = document.getElementById('periode-select');
-    const espace_id  = select.value;  // UUID
+    const espace_id  = select.value;
 
     if (!keyword || !espace_id) return;
 
