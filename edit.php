@@ -41,7 +41,7 @@ $PAGE->set_pagelayout('incourse');
 
 // Periods available.
 $periods = block_pegase_get_periods();
-//print_object($periods);
+// print_object($periods);
 
 if (empty($periods)) {
     echo $OUTPUT->header();

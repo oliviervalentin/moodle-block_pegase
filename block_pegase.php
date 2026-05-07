@@ -25,21 +25,28 @@
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/blocks/pegase/locallib.php');
 
+/**
+ * Block PEGASE class.
+ *
+ * @package     block_pegase
+ */
 class block_pegase extends block_base {
-
+    /**
+     * Initialize block.
+     */
     public function init(): void {
         $this->title = get_string('pluginname', 'block_pegase');
     }
 
     /**
-     * Allow global configuration via settings page
+     * Allow global configuration via settings page.
      */
     public function has_config(): bool {
         return true;
     }
 
     /**
-     * Only show in courses
+     * Only show in courses.
      */
     public function applicable_formats(): array {
         return [
@@ -50,14 +57,14 @@ class block_pegase extends block_base {
     }
 
     /**
-     * Allow multiple instances in same course
+     * Allow multiple instances in same course.
      */
     public function instance_allow_multiple(): bool {
         return false;
     }
 
     /**
-     * Block content
+     * Block content.
      */
     public function get_content(): stdClass {
         global $DB, $OUTPUT, $COURSE;
@@ -72,12 +79,12 @@ class block_pegase extends block_base {
 
         $context = context_course::instance($COURSE->id);
 
-        // Check capability
+        // Check capability.
         if (!has_capability('block/pegase:manage', $context)) {
             return $this->content;
         }
 
-        // Check enrol_wsscol is installed
+        // Check enrol_wsscol is installed.
         if (!enrol_is_enabled('wsscol')) {
             $this->content->text = $OUTPUT->notification(
                 'Le plugin enrol_wsscol est requis mais non activé.',
@@ -86,7 +93,7 @@ class block_pegase extends block_base {
             return $this->content;
         }
 
-        // Get all wsscol instances linked to PEGASE scolarapp in this course
+        // Get all wsscol instances linked to PEGASE scolarapp in this course.
         $sql = "SELECT e.*, ewa.name as scolarapp_name
                 FROM {enrol} e
                 JOIN {enrol_wsscol_scolapps} ewa ON e.customint2 = ewa.id
@@ -98,21 +105,21 @@ class block_pegase extends block_base {
 
         $html = '<div class="block-pegase">';
 
-        // List active methods
+        // List active methods.
         $html .= '<h6>' . get_string('activemethods', 'block_pegase') . '</h6>';
 
         if (empty($instances)) {
-            $html .= '<p class="text-muted small">' 
-                   . get_string('nomethods', 'block_pegase') 
+            $html .= '<p class="text-muted small">'
+                   . get_string('nomethods', 'block_pegase')
                    . '</p>';
         } else {
             $html .= '<ul class="list-unstyled">';
             foreach ($instances as $instance) {
-                // Count enrolled students
+                // Count enrolled students.
                 $count = $DB->count_records('user_enrolments', ['enrolid' => $instance->id]);
 
-                // Delete URL
-                $delete_url = new moodle_url('/blocks/pegase/delete.php', [
+                // Delete URL.
+                $deleteurl = new moodle_url('/blocks/pegase/delete.php', [
                     'instanceid' => $instance->id,
                     'courseid'   => $COURSE->id,
                     'sesskey'    => sesskey(),
@@ -121,12 +128,12 @@ class block_pegase extends block_base {
                 $html .= '<li class="mb-2 p-2 border rounded">';
                 $html .= '<div class="d-flex justify-content-between align-items-start">';
                 $html .= '<div>';
-                $html .= '<strong>' . s($instance->customchar1) . '</strong>'; // code EC
-                $html .= ' — ' . s($instance->customchar2); // titre du cours
-                $html .= '<br><small class="text-muted">' . s($instance->customchar3) . '</small>'; // période
+                $html .= '<strong>' . s($instance->customchar1) . '</strong>';
+                $html .= ' — ' . s($instance->customchar2);
+                $html .= '<br><small class="text-muted">' . s($instance->customchar3) . '</small>';
                 $html .= '<br><small>' . $count . ' ' . get_string('students', 'block_pegase') . '</small>';
                 $html .= '</div>';
-                $html .= '<a href="' . $delete_url . '" '
+                $html .= '<a href="' . $deleteurl . '" '
                     . 'onclick="return confirm(\'' . get_string('deleteconfirm', 'block_pegase') . '\')" '
                     . 'class="btn btn-sm btn-outline-danger" '
                     . 'title="' . get_string('deletemethod', 'block_pegase') . '">'
@@ -138,15 +145,15 @@ class block_pegase extends block_base {
             $html .= '</ul>';
         }
 
-        // Add buttons
-        $browse_url = new moodle_url('/blocks/pegase/browse.php', ['courseid' => $COURSE->id]);
-        $edit_url   = new moodle_url('/blocks/pegase/edit.php',   ['courseid' => $COURSE->id]);
+        // Add buttons.
+        $browseurl = new moodle_url('/blocks/pegase/browse.php', ['courseid' => $COURSE->id]);
+        $editurl   = new moodle_url('/blocks/pegase/edit.php', ['courseid' => $COURSE->id]);
 
         $html .= '<div class="d-grid gap-2 mt-2">';
-        $html .= '<a href="' . $browse_url . '" class="btn btn-primary btn-sm">'
+        $html .= '<a href="' . $browseurl . '" class="btn btn-primary btn-sm">'
                . '<i class="fa fa-sitemap"></i> ' . get_string('browsetree', 'block_pegase')
                . '</a>';
-        $html .= '<a href="' . $edit_url . '" class="btn btn-outline-primary btn-sm">'
+        $html .= '<a href="' . $editurl . '" class="btn btn-outline-primary btn-sm">'
                . '<i class="fa fa-pencil"></i> ' . get_string('searchbycode', 'block_pegase')
                . '</a>';
         $html .= '</div>';

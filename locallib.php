@@ -1,5 +1,4 @@
 <?php
-// locallib.php
 // This file is part of Moodle - https://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -26,72 +25,52 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Returns available periods from active PEGASE scolarapps in enrol_wsscol.
+ * Get PEGASE periods configured in scolarapps and available from API.
  *
- * @return array ['PERIODE-25-26' => 'PEGASE 2025-2026 (PERIODE-25-26)', ...]
+ * @return array List of periods with 'id' (UUID), 'code' and 'libelle'
  */
-// function block_pegase_get_periods(): array {
-//     global $DB;
-
-//     $periods    = [];
-//     $scolarapps = $DB->get_records_select(
-//         'enrol_wsscol_scolapps',
-//         "type = 'pegase' AND status = 1",
-//         [], 'id ASC'
-//     );
-
-//     foreach ($scolarapps as $scolarapp) {
-//         if (!empty($scolarapp->getstudents_periode)) {
-//             $periods[$scolarapp->getstudents_periode] = $scolarapp->name
-//                 . ' (' . $scolarapp->id . ')';
-//         }
-//     }
-
-//     return $periods;
-// }
-
 function block_pegase_get_periods(): array {
     global $DB;
 
-    // Get configured PEGASE scolarapps periods
+    // Get configured PEGASE scolarapps periods.
     $scolarapps = $DB->get_records_select(
         'enrol_wsscol_scolapps',
         "type = 'pegase' AND status = 1",
-        [], 'id ASC'
+        [],
+        'id ASC'
     );
 
-    $configured_codes = [];
+    $configuredcodes = [];
     foreach ($scolarapps as $scolarapp) {
         if (!empty($scolarapp->getstudents_periode)) {
-            $configured_codes[] = $scolarapp->getstudents_periode;
+            $configuredcodes[] = $scolarapp->getstudents_periode;
         }
     }
 
-    if (empty($configured_codes)) {
+    if (empty($configuredcodes)) {
         return [];
     }
 
-    // Get espaces from API and filter on configured codes only
+    // Get espaces from API and filter on configured codes only.
     try {
         $api     = new \block_pegase\api();
         $espaces = $api->get_espaces(get_config('block_pegase', 'codestructure'));
 
         $periods = [];
         foreach ($espaces as $espace) {
-            if (in_array($espace['code'], $configured_codes)) {
+            if (in_array($espace['code'], $configuredcodes)) {
                 $periods[] = [
-                    'id'      => $espace['id'],     // UUID for ODF search
-                    'code'    => $espace['code'],   // PERIODE-25-26 for CHC API
+                    'id'      => $espace['id'],
+                    'code'    => $espace['code'],
                     'libelle' => $espace['libelle'],
                 ];
             }
         }
         return $periods;
-
     } catch (\moodle_exception $e) {
-        // Fallback : return just codes without UUID if API unavailable
+        // Fallback : return just codes without UUID if API unavailable.
         $periods = [];
-        foreach ($configured_codes as $code) {
+        foreach ($configuredcodes as $code) {
             $periods[] = [
                 'id'      => '',
                 'code'    => $code,

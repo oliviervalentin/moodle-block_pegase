@@ -44,7 +44,7 @@ $PAGE->set_title(get_string('browsetitle', 'block_pegase'));
 $PAGE->set_heading($course->fullname);
 $PAGE->set_pagelayout('incourse');
 
-// Periods available
+// Periods available.
 $periods = block_pegase_get_periods();
 
 if (empty($periods)) {
@@ -57,11 +57,10 @@ if (empty($periods)) {
     exit;
 }
 
-// Action : confirm and create enrol_wsscol instance
+// Action : confirm and create enrol_wsscol instance.
 if ($action === 'confirm' && $confirmed && !empty($code_ec) && !empty($periode)) {
-
-    $wsscol_plugin = enrol_get_plugin('wsscol');
-    if (!$wsscol_plugin) {
+    $wsscolplugin = enrol_get_plugin('wsscol');
+    if (!$wsscolplugin) {
         print_error('Plugin enrol_wsscol not found.');
     }
 
@@ -72,18 +71,21 @@ if ($action === 'confirm' && $confirmed && !empty($code_ec) && !empty($periode))
     );
 
     if (!$scolarapp) {
-        throw new \moodle_exception('generalexceptionmessage', 'error', '',
+        throw new \moodle_exception(
+            'generalexceptionmessage',
+            'error',
+            '',
             'Aucune scolarapp PEGASE trouvée pour la période : ' . $periode
         );
     }
 
-    $scolarapp_id = $scolarapp->id;
-    // Check if already enrolled
+    $scolarappid = $scolarapp->id;
+    // Check if already enrolled.
     $existing = $DB->get_record('enrol', [
         'enrol'       => 'wsscol',
         'courseid'    => $courseid,
         'customchar1' => $code_ec,
-        'customint2'  => $scolarapp_id,
+        'customint2'  => $scolarappid,
     ]);
 
     if ($existing) {
@@ -95,12 +97,12 @@ if ($action === 'confirm' && $confirmed && !empty($code_ec) && !empty($periode))
         );
     }
 
-    // Create enrol_wsscol instance
-    $wsscol_plugin->add_instance($course, [
+    // Create enrol_wsscol instance.
+    $wsscolplugin->add_instance($course, [
         'customchar1' => $code_ec,
-        'customchar2' => $title,    // titre du cours
-        'customchar3' => $periode,  // période
-        'customint2'  => $scolarapp_id,
+        'customchar2' => $title,
+        'customchar3' => $periode,
+        'customint2'  => $scolarappid,
         'customint3'  => 1,
         'status'      => ENROL_INSTANCE_ENABLED,
     ]);
@@ -112,14 +114,15 @@ if ($action === 'confirm' && $confirmed && !empty($code_ec) && !empty($periode))
     );
 }
 
-$ajax_url = new moodle_url('/blocks/pegase/ajax.php');
+$ajaxurl = new moodle_url('/blocks/pegase/ajax.php');
 $sesskey  = sesskey();
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('browsetitle', 'block_pegase'));
 
-// Back link
-echo html_writer::tag('p',
+// Back link.
+echo html_writer::tag(
+    'p',
     html_writer::link(
         new moodle_url('/course/view.php', ['id' => $courseid]),
         '← ' . get_string('backtocourse', 'block_pegase')
@@ -128,10 +131,7 @@ echo html_writer::tag('p',
 ?>
 
 <div id="pegase-browser">
-
-    <?php /* ================================================================
-     STEP 1 : Search formation
-    ================================================================ */ ?>
+    <!-- FIRST STEP : search formations by keyword and period. -->
     <div class="card mb-4">
         <div class="card-header fw-bold">
             <?php echo get_string('step1search', 'block_pegase'); ?>
@@ -142,7 +142,7 @@ echo html_writer::tag('p',
                     <?php echo get_string('selectperiod', 'block_pegase'); ?>
                 </label>
                 <select id="periode-select" class="form-select w-auto">
-    <?php foreach ($periods as $period): ?>
+    <?php foreach ($periods as $period) : ?>
         <option value="<?php echo $period['id']; ?>"
                 data-code="<?php echo $period['code']; ?>"
             <?php echo ($periode === $period['code']) ? 'selected' : ''; ?>>
@@ -164,9 +164,7 @@ echo html_writer::tag('p',
         </div>
     </div>
 
-    <?php /* ================================================================
-     STEP 2 : Formation tree
-    ================================================================ */ ?>
+    <!-- SECOND STEP : display formation tree and select an EC -->
     <div class="card mb-4 d-none" id="tree-card">
         <div class="card-header fw-bold">
             <?php echo get_string('step2tree', 'block_pegase'); ?>
@@ -177,9 +175,7 @@ echo html_writer::tag('p',
         </div>
     </div>
 
-    <?php /* ================================================================
-     STEP 3 : Students list + confirmation
-    ================================================================ */ ?>
+    <!-- THIRD STEP : Students list + confirmation -->
     <div class="card mb-4 d-none" id="students-card">
         <div class="card-header fw-bold">
             <?php echo get_string('step3students', 'block_pegase'); ?>
@@ -216,12 +212,19 @@ echo html_writer::tag('p',
 </div>
 
 <script>
-const AJAX_URL = '<?php echo $ajax_url; ?>';
+/**
+ * JavaScript for PEGASE enrolment browsing and confirmation.
+ * This script handles the 3 steps of the enrolment process:
+ * 1. Search formations by keyword and period.
+ * 2. Load and display the formation tree, allowing selection of an EC.
+ * 3. Load students for the selected EC, show if they have Moodle accounts, and confirm enrolment.
+ *
+ * It uses AJAX calls to fetch data from the server without reloading the page, and updates the DOM accordingly.
+ */
+const AJAX_URL = '<?php echo $ajaxurl; ?>';
 const SESSKEY  = '<?php echo $sesskey; ?>';
 
-// =========================================================================
-// UTILITY
-// =========================================================================
+// Utilities for AJAX calls and DOM manipulation.
 
 function showSpinner(container) {
     document.getElementById(container).innerHTML =
@@ -252,42 +255,7 @@ function escapeHtml(str) {
         .replace(/"/g, '&quot;');
 }
 
-// =========================================================================
-// LOAD PERIODS ON PAGE LOAD
-// =========================================================================
-
-/* async function loadPeriods() {
-    try {
-        const periods = await ajaxCall('espaces', {});
-        const select  = document.getElementById('periode-select');
-        const loading = document.getElementById('periode-loading');
-
-        select.innerHTML = '';
-        periods.forEach(period => {
-            const option = document.createElement('option');
-            option.value           = period.id;    // UUID for ODF search
-            option.dataset.code    = period.code;  // PERIODE-25-26 for CHC API
-            option.textContent     = period.libelle;
-            select.appendChild(option);
-        });
-
-        if (loading) loading.style.display = 'none';
-
-    } catch (e) {
-        console.error('Failed to load periods:', e);
-        document.getElementById('periode-select').innerHTML =
-            '<option value="">Erreur de chargement</option>';
-    }
-}
-
-// Load periods when page is ready
-loadPeriods();
-*/
-
-// =========================================================================
-// STEP 1 : SEARCH FORMATIONS — now uses espace UUID
-// =========================================================================
-
+// STEP 1 : Search formations —  uses espace UUID.
 document.getElementById('search-btn').addEventListener('click', async () => {
     const keyword    = document.getElementById('search-input').value.trim();
     const select     = document.getElementById('periode-select');
@@ -341,10 +309,8 @@ function renderSearchResults(result) {
     container.innerHTML = html;
 }
 
-// =========================================================================
-// STEP 2 : LOAD FORMATION TREE
-// =========================================================================
-
+// STEP 2 : load formation tree and select an EC. The code of the selected EC will be used 
+// as customchar1 in enrol_wsscol instance, and the title as customchar2.
 async function loadTree(btn) {
     const formation_id = btn.dataset.id;
     const label        = btn.dataset.label;
@@ -380,7 +346,7 @@ function buildTreeHtml(node, depth) {
     const label   = node.libelle || '';
     const enfants = node.enfants || [];
 
-    // All nodes are clickable to load students
+    // All nodes are clickable to load students.
     const clickable = '<button type="button" class="btn btn-sm btn-outline-success ms-1" '
                     + 'onclick="loadStudents(\'' + escapeHtml(code) + '\', \''
                     + escapeHtml(label) + '\')" '
@@ -389,28 +355,28 @@ function buildTreeHtml(node, depth) {
                     + escapeHtml(label)
                     + '</button>';
 
-    // Leaf node — just the clickable button
+    // Leaf node — just the clickable button.
     if (enfants.length === 0) {
         return '<div class="py-1" style="padding-left:' + (depth * 20) + 'px">'
              + getTypeBadge(type) + clickable
              + '</div>';
     }
 
-    // Node with children — collapsible + clickable
+    // Node with children — collapsible + clickable.
     const node_id = 'node-' + (++window.nodeCounter);
 
     let html = '<div class="py-1" style="padding-left:' + (depth * 20) + 'px">';
 
-    // Toggle button to expand/collapse
+    // Toggle button to expand/collapse.
     html += '<button class="btn btn-sm btn-link text-start p-0 text-decoration-none me-1" '
           + 'type="button" onclick="toggleNode(\'' + node_id + '\', this)">'
           + '<i class="fa fa-chevron-right me-1"></i> ' + getTypeBadge(type)
           + '</button>';
 
-    // Clickable button for this node
+    // Clickable button for this node.
     html += clickable;
 
-    // Children container
+    // Children container.
     html += '<div id="' + node_id + '" style="display:none">';
     enfants.forEach(enfant => {
         const child = enfant.objetMaquette || enfant;
@@ -421,6 +387,9 @@ function buildTreeHtml(node, depth) {
     return html;
 }
 
+/** Helper to get badge HTML based on type.
+ * Types can be SEMESTRE, UE, EC, etc. Default is a generic badge.
+ */
 function getTypeBadge(type) {
     const badges = {
         'SEMESTRE': '<span class="badge bg-primary me-1">SEM</span>',
@@ -430,6 +399,9 @@ function getTypeBadge(type) {
     return badges[type] || '<span class="badge bg-secondary me-1">' + (type || '?') + '</span>';
 }
 
+/** 
+ * Toggle visibility of a tree node's children and update the toggle icon. 
+ */
 function toggleNode(nodeId, btn) {
     const el   = document.getElementById(nodeId);
     const icon = btn.querySelector('i');
@@ -442,10 +414,7 @@ function toggleNode(nodeId, btn) {
         : 'fa fa-chevron-right me-1';
 }
 
-// =========================================================================
-// STEP 3 : LOAD STUDENTS
-// =========================================================================
-
+// STEP 3 : load students for the selected EC and show confirmation form to create enrol instance.
 async function loadStudents(code_ec, label) {
     const select      = document.getElementById('periode-select');
     const selected    = select.options[select.selectedIndex];
@@ -454,7 +423,6 @@ async function loadStudents(code_ec, label) {
     document.getElementById('students-card').classList.remove('d-none');
     document.getElementById('students-ec-name').textContent = code_ec + ' — ' + label;
     document.getElementById('confirm-form').classList.add('d-none');
-    //('students-list');
     document.getElementById('students-card').scrollIntoView({ behavior: 'smooth' });
 
     try {
@@ -465,6 +433,10 @@ async function loadStudents(code_ec, label) {
     }
 }
 
+/** 
+ * Render the list of students for the selected EC, showing if they have a Moodle account linked or not.
+ * Also shows a confirmation form to create the enrol instance with the selected EC code and period.
+ */
 function renderStudents(result, code_ec, code_periode) {
     const students  = result.students || [];
     const container = document.getElementById('students-list');
@@ -501,7 +473,7 @@ function renderStudents(result, code_ec, code_periode) {
 
     container.innerHTML = html;
 
-    // Show confirmation form
+    // Show confirmation form.
     document.getElementById('confirm-code-ec').value = code_ec;
     document.getElementById('confirm-periode').value = code_periode;
     document.getElementById('confirm-form').classList.remove('d-none');

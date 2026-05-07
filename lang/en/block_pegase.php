@@ -23,12 +23,12 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$string['pluginname']           = 'PEGASE enrolments';
 $string['pegase:addinstance']   = 'Add PEGASE block';
-$string['pegase:myaddinstance'] = 'Add PEGASE block to my dashboard';
 $string['pegase:manage']        = 'Manage PEGASE enrolments';
+$string['pegase:myaddinstance'] = 'Add PEGASE block to my dashboard';
+$string['pluginname']           = 'PEGASE enrolments';
 
-// Settings
+// Settings.
 $string['authurl']              = 'CAS authentication URL';
 $string['authurl_desc']         = 'PEGASE CAS endpoint to obtain a token.';
 $string['apiurl']               = 'CHC API base URL';
@@ -42,7 +42,7 @@ $string['password']             = 'API password';
 $string['wsscol_scolarapp_id']      = 'PEGASE scolarapp ID';
 $string['wsscol_scolarapp_id_desc'] = 'ID of the PEGASE scolarapp in enrol_wsscol.';
 
-// Block content
+// Block content.
 $string['activemethods']        = 'Courses enrolled in this class';
 $string['nomethods']            = 'No PEGASE enrolment method found in this course.';
 $string['addmethod']            = 'Add a PEGASE course';
@@ -50,7 +50,7 @@ $string['deletemethod']         = 'Delete this method';
 $string['deleteconfirm']        = 'Are you sure you want to delete this enrolment method?';
 $string['students']             = 'student(s)';
 
-// Search
+// Search.
 $string['searchbycode']         = 'Search by course code';
 $string['browsetree']           = 'Browse training tree';
 $string['selectperiod']         = 'Academic year';
