@@ -41,7 +41,6 @@ $PAGE->set_pagelayout('incourse');
 
 // Periods available.
 $periods = block_pegase_get_periods();
-//print_object($periods);
 
 if (empty($periods)) {
     echo $OUTPUT->header();
@@ -68,7 +67,7 @@ $error           = '';
 
 // Action : search students.
 if ($action === 'search' && !empty($code_ec) && !empty($periode)) {
-    // Use "code etablissement" code defined in settings. 
+    // Use "code etablissement" code defined in settings.
     $codestructure = get_config('block_pegase', 'codestructure');
 
     // Search for students for this course code through PEGASE API.
@@ -81,7 +80,6 @@ if ($action === 'search' && !empty($code_ec) && !empty($periode)) {
         $object_type       = $result['object_type'];
         $object_type_label = $result['object_type_label'];
         $search_done       = true;
-
     } catch (\moodle_exception $e) {
         $error = $e->getMessage();
     }
@@ -89,7 +87,6 @@ if ($action === 'search' && !empty($code_ec) && !empty($periode)) {
 
 // Action : confirm and create enrol_wsscol instance.
 if ($action === 'confirm' && $confirmed && !empty($code_ec) && !empty($periode)) {
-
     // Check enrol_wsscol is available.
     $wsscol_plugin = enrol_get_plugin('wsscol');
     if (!$wsscol_plugin) {
@@ -104,7 +101,10 @@ if ($action === 'confirm' && $confirmed && !empty($code_ec) && !empty($periode))
     );
 
     if (!$scolarapp) {
-        throw new \moodle_exception('generalexceptionmessage', 'error', '',
+        throw new \moodle_exception(
+            'generalexceptionmessage',
+            'error',
+            '',
             'Aucune scolarapp PEGASE trouvée pour la période : ' . $periode
         );
     }
@@ -131,8 +131,8 @@ if ($action === 'confirm' && $confirmed && !empty($code_ec) && !empty($periode))
     // Create enrol_wsscol instance.
     $wsscol_plugin->add_instance($course, [
         'customchar1' => $code_ec,
-        'customchar2' => $title,    // titre du cours
-        'customchar3' => $periode,  // période
+        'customchar2' => $title,
+        'customchar3' => $periode,
         'customint2'  => $scolarapp_id,
         'customint3'  => 1,
         'status'      => ENROL_INSTANCE_ENABLED,
@@ -145,28 +145,27 @@ if ($action === 'confirm' && $confirmed && !empty($code_ec) && !empty($periode))
     );
 }
 
-// Display page
+// Display page.
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('searchbycode', 'block_pegase'));
 
-// Back link
-echo html_writer::tag('p',
+// Back link.
+echo html_writer::tag(
+    'p',
     html_writer::link(
         new moodle_url('/course/view.php', ['id' => $courseid]),
         '← ' . get_string('backtocourse', 'block_pegase')
     )
 );
 
-// Error message
+// Error message.
 if (!empty($error)) {
     echo $OUTPUT->notification($error, \core\output\notification::NOTIFY_ERROR);
 }
 
-// =========================================================================
-// SEARCH FORM
-// =========================================================================
-?>
+// SEARCH FORM.
 
+?>
 <form method="post" action="<?php echo $PAGE->url; ?>">
     <input type="hidden" name="sesskey"  value="<?php echo sesskey(); ?>">
     <input type="hidden" name="courseid" value="<?php echo $courseid; ?>">
@@ -181,7 +180,7 @@ if (!empty($error)) {
                     <?php echo get_string('selectperiod', 'block_pegase'); ?>
                 </label>
                 <select name="periode" id="periode" class="form-select w-auto">
-                    <?php foreach ($periods as $period): ?>
+                    <?php foreach ($periods as $period) : ?>
                         <option value="<?php echo $period['code']; ?>"
                             <?php echo ($periode === $period['code']) ? 'selected' : ''; ?>>
                             <?php echo $period['libelle']; ?>
@@ -217,30 +216,28 @@ if (!empty($error)) {
 
 <?php
 
-// =========================================================================
-// SEARCH RESULTS
-// =========================================================================
+// SEARCH RESULTS.
 
 if ($search_done) {
-
-    // Display EC title and type
+    // Display EC title and type.
     if (!empty($title)) {
-        echo html_writer::tag('h3',
+        echo html_writer::tag(
+            'h3',
             s($code_ec) . ' — ' . s($title),
             ['class' => 'mt-4']
         );
     }
 
-    // Not an EC — warn and stop
+    // TO DO - check objects that can be enrolled.
     // if (!empty($object_type) && $object_type !== 'EC') {
     //     echo $OUTPUT->notification(
     //         get_string('notanec', 'block_pegase', s($object_type_label)),
     //         \core\output\notification::NOTIFY_WARNING
     //     );
-
     // } else {
 
-        echo html_writer::tag('p',
+        echo html_writer::tag(
+            'p',
             get_string('studentsfound', 'block_pegase') . ' : ' . count($students),
             ['class' => 'text-muted']
         );
@@ -252,7 +249,7 @@ if ($search_done) {
             );
         } else {
 
-            // Students table
+            // Students table.
             $table = new html_table();
             $table->head = [
                 get_string('studentcode', 'block_pegase'),
@@ -265,13 +262,13 @@ if ($search_done) {
             foreach ($students as $student) {
                 $code = $student['codeApprenant'];
 
-                $moodle_user = $DB->get_record(
+                $moodleuser = $DB->get_record(
                     'user',
                     ['idnumber' => $code],
                     'id, firstname, lastname'
                 );
 
-                $account_cell = $moodle_user
+                $account_cell = $moodleuser
                     ? html_writer::tag('span', 'Compte Moodle OK', ['class' => 'text-success'])
                     : html_writer::tag('span', get_string('noaccount', 'block_pegase'), ['class' => 'text-warning']);
 
@@ -285,7 +282,7 @@ if ($search_done) {
 
             echo html_writer::table($table);
 
-            // Confirmation form
+            // Confirmation form.
             ?>
             <form method="post" action="<?php echo $PAGE->url; ?>">
                 <input type="hidden" name="sesskey"   value="<?php echo sesskey(); ?>">

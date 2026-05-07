@@ -63,13 +63,13 @@ try {
             // Retrieve user info from Moodle account.
             global $DB;
             foreach ($result['students'] as &$student) {
-                $moodle_user = $DB->get_record(
+                $moodleuser = $DB->get_record(
                     'user',
                     ['idnumber' => $student['codeApprenant']],
                     'id, firstname, lastname'
                 );
-                $student['moodle_account'] = $moodle_user ? true : false;
-                $student['moodle_name']    = $moodle_user ? fullname($moodle_user) : null;
+                $student['moodle_account'] = $moodleuser ? true : false;
+                $student['moodle_name']    = $moodleuser ? fullname($moodleuser) : null;
             }
             echo json_encode(['success' => true, 'data' => $result]);
             break;
